@@ -1,0 +1,49 @@
+<div class="chat-container">
+  <aside class="chat-list">
+    <div class="chat-list-header">
+      <h2>Chats</h2>
+      <button class="new-chat-btn" (click)="onNewChat()">
+        <span class="material-icons">add</span>
+      </button>
+    </div>
+
+    <div class="chat-items">
+      <a
+        *ngFor="let chat of chatViewModels$ | async"
+        [routerLink]="['./', chat.id]"
+        routerLinkActive="active"
+        class="chat-item"
+      >
+        <img
+          [src]="chat.avatar"
+          [alt]="chat.name"
+          *ngIf="chat.avatar; else initialAvatar"
+          class="chat-avatar"
+        />
+        <ng-template #initialAvatar>
+          <div class="initial-avatar" [style.fontSize.px]="40 * 0.4">
+            {{ ChatUtil.getInitials(chat.name) }}
+          </div>
+        </ng-template>
+        <div class="chat-info">
+          <div class="chat-name">{{ chat.name }}</div>
+          <div class="chat-preview" *ngIf="chat.lastMessage">
+            {{ chat.lastMessage.content }}
+          </div>
+        </div>
+        <div class="chat-meta">
+          <span class="time" *ngIf="chat.lastMessage">
+            {{ chat.lastMessage.timestamp | date : 'shortTime' }}
+          </span>
+          <span class="unread-count" *ngIf="chat.unreadCount">
+            {{ chat.unreadCount }}
+          </span>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <main class="chat-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

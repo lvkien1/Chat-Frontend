@@ -1,0 +1,85 @@
+# Cline Project Intelligence
+
+## Frontend Development Rules
+
+### File Organization
+- Use SCSS for styling
+- Create separate files for component parts:
+  - `.html` for templates
+  - `.ts` for component logic
+  - `.scss` for component styles
+- Place each component in its own directory
+- Name popup components with 'Popup' prefix (e.g., `PopupConfirm`, `PopupSettings`)
+- CSS Encapsulation:
+  - All SCSS rules must be wrapped in `:host` selector
+  - Use `::ng-deep` inside `:host` when needed to style child components
+  - Avoid global styles outside of `:host` to prevent styling conflicts
+
+## Project Context
+- Chat Web App UI implementation based on Figma design
+- Angular-based frontend development
+- Focus on component-based architecture
+- Real-time communication features
+
+## Key Implementation Paths
+
+### Design System
+- Extract colors, typography, and spacing from Figma
+- Implement using SCSS variables and mixins
+- Follow Material Design patterns while maintaining custom design
+- Use consistent border-radius (24px for main containers, varied for components)
+
+### Component Structure
+- Follow smart/presentational pattern
+- Keep components focused and single-responsibility
+- Implement proper component communication
+- Maintain consistent naming conventions
+
+### State Management
+- Use NgRx for complex state
+- Implement proper actions and reducers
+- Follow CQRS pattern
+- Maintain clear state structure
+
+## User Preferences
+- Clear documentation requirements
+- Structured component hierarchy
+- Consistent code style
+- Regular progress updates
+
+## Project Patterns
+1. Memory Bank-first approach for documentation
+2. Component-driven development
+3. Test-driven development when appropriate
+4. Regular progress tracking
+
+## Known Challenges
+- Complex state management requirements
+- Real-time feature implementation
+- File handling complexity
+- Cross-browser compatibility
+
+## Tool Usage Patterns
+1. Regular Memory Bank updates
+2. Consistent git commit messages
+3. Clear code documentation
+4. Regular progress tracking
+
+## Evolution Notes
+- Project started with complete Memory Bank setup
+- Following Angular best practices
+- Implementing Material Design patterns
+- Focus on maintainable code structure
+
+## Implementation Guidelines
+1. Extract Figma design tokens first
+2. Create base component structure
+3. Implement core features
+4. Add real-time capabilities
+5. Regular testing and documentation
+
+## Success Patterns
+1. Clear documentation
+2. Consistent code style
+3. Regular reviews
+4. Progressive enhancement

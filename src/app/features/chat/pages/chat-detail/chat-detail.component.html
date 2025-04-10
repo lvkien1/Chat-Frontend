@@ -1,0 +1,40 @@
+<div class="chat-detail" *ngIf="chat$ | async as chat">
+  <header class="chat-header">
+    <img
+      [src]="chatAvatar$ | async"
+      *ngIf="chatAvatar$ | async; else initialAvatar"
+      [alt]="chatName$ | async"
+      class="chat-avatar"
+    />
+    <ng-template #initialAvatar>
+      <div class="initial-avatar" [style.fontSize.px]="40 * 0.4">
+        {{
+          (chatName$ | async)
+            ? ChatUtil.getInitials((chatName$ | async) || '')
+            : ''
+        }}
+      </div>
+    </ng-template>
+    <div class="chat-info">
+      <h2>{{ chatName$ | async }}</h2>
+      <p class="typing-status">{{ typingStatus$ | async }}</p>
+    </div>
+  </header>
+
+  <main class="message-list" #messageList>
+    <div *ngFor="let message of messages$ | async">
+      <app-message-bubble
+        [message]="message"
+        [isOwnMessage]="message.senderId === (currentUserId$ | async)"
+        (fileClick)="onFileClick($event)"
+        (imageClick)="onImageClick($event)"
+      ></app-message-bubble>
+    </div>
+  </main>
+
+  <app-message-input
+    (messageSent)="onMessageSent($event)"
+    (fileSelected)="onFileSelected($event)"
+    (typing)="onTyping($event)"
+  ></app-message-input>
+</div>

@@ -1,0 +1,16 @@
+<div class="files-container">
+  <h2>Files</h2>
+  
+  <div class="files-list">
+    <div *ngFor="let entry of files$ | async" class="file-item" (click)="openFile(entry)">
+      <span class="material-icons">{{ getFileIcon(entry.file.mimeType) }}</span>
+      <div class="file-info">
+        <div class="file-name">{{ entry.file.name }}</div>
+        <div class="file-meta">
+          {{ entry.file.size | number }} bytes · 
+          {{ entry.timestamp | date:'medium' }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

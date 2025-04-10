@@ -1,0 +1,25 @@
+<div class="message-input">
+  <input type="file" #fileInput hidden (change)="handleFileInput($event)" />
+
+  <button type="button" class="attach-button" (click)="fileInput.click()">
+    <span class="material-icons">attach_file</span>
+  </button>
+
+  <textarea
+    #messageInput
+    [(ngModel)]="message"
+    (ngModelChange)="onInputChange()"
+    (keydown)="onKeyPress($event)"
+    placeholder="Type a message..."
+    rows="1"
+  ></textarea>
+
+  <button
+    type="button"
+    class="send-button"
+    [disabled]="!message.trim()"
+    (click)="sendMessage()"
+  >
+    <span class="material-icons">send</span>
+  </button>
+</div>

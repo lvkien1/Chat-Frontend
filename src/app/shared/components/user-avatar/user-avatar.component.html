@@ -1,0 +1,24 @@
+<div
+  class="avatar-container"
+  [style.width.px]="size"
+  [style.height.px]="size"
+  [class.online]="user?.isOnline"
+>
+  <ng-container *ngIf="user">
+    <img
+      *ngIf="user.avatar; else initialAvatar"
+      [src]="user.avatar"
+      [alt]="user.name"
+      class="avatar-image"
+    />
+    <ng-template #initialAvatar>
+      <div class="initial-avatar" [style.fontSize.px]="size * 0.4">
+        {{ ChatUtil.getInitials(user.name) }}
+      </div>
+    </ng-template>
+  </ng-container>
+  <div *ngIf="!user" class="default-avatar">
+    <mat-icon [style.fontSize.px]="size * 0.6">account_circle</mat-icon>
+  </div>
+  <div *ngIf="showStatus" class="status-indicator"></div>
+</div>

@@ -1,0 +1,32 @@
+<div class="image-preview-dialog">
+  <!-- Header -->
+  <div class="dialog-header">
+    <h2 *ngIf="data.title">{{ data.title }}</h2>
+    <button mat-icon-button (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Image Container -->
+  <div class="image-container" 
+       [class.zoomed]="isZoomed"
+       (click)="toggleZoom()">
+    <img [src]="data.imageUrl" 
+         [alt]="data.title || 'Image preview'"
+         [style.transform]="isZoomed ? 'scale(' + zoomLevel + ')' : 'none'"
+         (wheel)="handleZoom($event)">
+  </div>
+
+  <!-- Actions -->
+  <div class="dialog-actions">
+    <button mat-icon-button (click)="downloadImage()">
+      <mat-icon>download</mat-icon>
+    </button>
+    <button mat-icon-button (click)="rotate()">
+      <mat-icon>rotate_right</mat-icon>
+    </button>
+    <button mat-icon-button (click)="toggleZoom()">
+      <mat-icon>{{ isZoomed ? 'zoom_out' : 'zoom_in' }}</mat-icon>
+    </button>
+  </div>
+</div>

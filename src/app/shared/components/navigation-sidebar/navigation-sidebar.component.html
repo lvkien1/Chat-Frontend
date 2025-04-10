@@ -1,0 +1,49 @@
+<aside class="nav-sidebar">
+  <!-- User Profile -->
+  <div class="user-profile">
+    <app-user-avatar
+      [user]="currentUser$ | async"
+      [size]="40"
+      [showStatus]="true"
+      (click)="openSettings()"
+    ></app-user-avatar>
+  </div>
+
+  <!-- Navigation Links -->
+  <nav class="nav-links">
+    <a
+      routerLink="/chat"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-item"
+    >
+      <mat-icon>chat</mat-icon>
+      <span class="nav-label">Chats</span>
+    </a>
+
+    <a routerLink="/messages" routerLinkActive="active" class="nav-item">
+      <mat-icon>message</mat-icon>
+      <span class="nav-label">Messages</span>
+    </a>
+
+    <a routerLink="/files" routerLinkActive="active" class="nav-item">
+      <mat-icon>folder</mat-icon>
+      <span class="nav-label">Files</span>
+    </a>
+  </nav>
+
+  <!-- Settings -->
+  <div class="nav-footer">
+    <!-- Theme Toggle Button -->
+    <button class="nav-item" (click)="toggleTheme()">
+      <mat-icon *ngIf="(currentTheme$ | async) === 'light'">dark_mode</mat-icon>
+      <mat-icon *ngIf="(currentTheme$ | async) === 'dark'">light_mode</mat-icon>
+      <span class="nav-label">Toggle Theme</span>
+    </button>
+    
+    <button class="nav-item" (click)="openSettings()">
+      <mat-icon>settings</mat-icon>
+      <span class="nav-label">Settings</span>
+    </button>
+  </div>
+</aside>

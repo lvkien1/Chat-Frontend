@@ -1,0 +1,48 @@
+<div class="messages-list-container">
+  <header class="messages-header">
+    <h1>Messages</h1>
+    <div class="header-actions">
+      <button class="search-button">
+        <mat-icon>search</mat-icon>
+      </button>
+      <button class="filter-button">
+        <mat-icon>filter_list</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <div class="messages-content">
+    <!-- Filters -->
+    <div class="filters">
+      <button class="filter-chip active">All</button>
+      <button class="filter-chip">Unread</button>
+      <button class="filter-chip">Flagged</button>
+    </div>
+
+    <!-- Messages List -->
+    <div class="messages-grid">
+      <ng-container *ngIf="chats$ | async as chats">
+        <div *ngFor="let chat of chats" 
+             class="message-card"
+             [routerLink]="['/chat', chat.id]">
+          <div class="message-header">
+            <span class="participants">{{ chat.participants.join(', ') }}</span>
+            <span class="timestamp">{{ chat.lastMessage?.timestamp | date:'shortTime' }}</span>
+          </div>
+          <div class="message-preview" *ngIf="chat.lastMessage">
+            {{ chat.lastMessage.content }}
+          </div>
+          <div class="message-footer">
+            <div class="message-type" *ngIf="chat.lastMessage?.attachments?.length">
+              <mat-icon>attach_file</mat-icon>
+              <span>{{ chat.lastMessage.attachments.length }} attachments</span>
+            </div>
+            <div class="unread-badge" *ngIf="chat.unreadCount">
+              {{ chat.unreadCount }}
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

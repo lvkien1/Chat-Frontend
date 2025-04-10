@@ -1,0 +1,212 @@
+@use '@angular/material' as mat;
+
+// Include the common styles for Angular Material
+@include mat.core();
+
+// Define custom color palettes
+$primary-palette: (
+  50: #E8E7FF,
+  100: #C6C4FF,
+  200: #A19DFF,
+  300: #7B76FF,
+  400: #615EF0,
+  500: #4A47D1,
+  600: #3734B3,
+  700: #262495,
+  800: #171677,
+  900: #0B0B59,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+  )
+);
+
+$accent-palette: (
+  50: #FFF8E1,
+  100: #FFECB3,
+  200: #FFE082,
+  300: #FFD54F,
+  400: #FFCA28,
+  500: #FFC107,
+  600: #FFB300,
+  700: #FFA000,
+  800: #FF8F00,
+  900: #FF6F00,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: rgba(black, 0.87),
+    600: rgba(black, 0.87),
+    700: rgba(black, 0.87),
+    800: white,
+    900: white,
+  )
+);
+
+// Define theme colors for light theme
+$app-primary: mat.m2-define-palette($primary-palette);
+$app-accent: mat.m2-define-palette($accent-palette);
+$app-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+// Create the light theme
+$app-light-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $app-primary,
+    accent: $app-accent,
+    warn: $app-warn
+  ),
+  typography: mat.m2-define-typography-config(),
+  density: 0
+));
+
+// Create the dark theme
+$app-dark-theme: mat.m2-define-dark-theme((
+  color: (
+    primary: $app-primary,
+    accent: $app-accent,
+    warn: $app-warn
+  ),
+  typography: mat.m2-define-typography-config(),
+  density: 0
+));
+
+// Apply the light theme by default
+@include mat.all-component-themes($app-light-theme);
+
+// Apply the dark theme only when the data-theme attribute is set to "dark"
+[data-theme="dark"] {
+  @include mat.all-component-colors($app-dark-theme);
+}
+
+// Theme variables
+:root {
+  // Light theme (default)
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --text-primary: rgba(0, 0, 0, 0.87);
+  --text-secondary: rgba(0, 0, 0, 0.6);
+  --border-color: rgba(0, 0, 0, 0.08);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --card-bg: #ffffff;
+  --hover-bg: rgba(0, 0, 0, 0.04);
+}
+
+// Dark theme
+[data-theme="dark"] {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-primary: rgba(255, 255, 255, 0.87);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --card-bg: #2d2d2d;
+  --hover-bg: rgba(255, 255, 255, 0.08);
+}
+
+// File type colors for dark mode
+[data-theme="dark"] {
+  .doc-file .file-icon {
+    background: rgba(52, 152, 219, 0.2) !important;
+    color: #5dade2 !important;
+  }
+  
+  .pdf-file .file-icon {
+    background: rgba(231, 76, 60, 0.2) !important;
+    color: #f1948a !important;
+  }
+  
+  .archive-file .file-icon {
+    background: rgba(241, 196, 15, 0.2) !important;
+    color: #f7dc6f !important;
+  }
+  
+  .audio-file .file-icon {
+    background: rgba(46, 204, 113, 0.2) !important;
+    color: #7dcea0 !important;
+  }
+  
+  .video-file .file-icon {
+    background: rgba(230, 126, 34, 0.2) !important;
+    color: #f0b27a !important;
+  }
+  
+  .image-file .file-icon {
+    background: rgba(155, 89, 182, 0.2) !important;
+    color: #bb8fce !important;
+  }
+}
+
+// Theme transitions
+body, .app-container, .navigation-sidebar, .main-content, .nav-item, mat-card {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+// Global styles
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+// Reset styles
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// Utility classes
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.gap-4 {
+  gap: 16px;
+}
+
+// Scrollbar styles
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}

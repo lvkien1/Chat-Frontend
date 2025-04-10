@@ -1,0 +1,67 @@
+:host {
+  .message-input {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  textarea {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    resize: none;
+    max-height: 150px;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.5;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #615ef0;
+    }
+
+    &::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.8;
+    }
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    color: #615ef0;
+    transition: background-color 0.2s, color 0.3s ease;
+
+    &:hover {
+      background: rgba(97, 94, 240, 0.1);
+    }
+
+    &:disabled {
+      color: var(--text-secondary);
+      cursor: default;
+
+      &:hover {
+        background: transparent;
+      }
+    }
+
+    .material-icons {
+      font-size: 24px;
+    }
+  }
+}

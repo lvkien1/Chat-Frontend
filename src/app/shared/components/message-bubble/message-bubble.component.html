@@ -1,0 +1,62 @@
+<div class="message-bubble" [class.own-message]="isOwnMessage">
+  <div class="message-content">
+    <p>{{ message.content }}</p>
+
+    <div class="attachments" *ngIf="message.attachments?.length">
+      <div
+        *ngFor="let attachment of message.attachments"
+        class="attachment"
+      >
+        <ng-container [ngSwitch]="attachment.type.split('/')[0]">
+          <!-- Image -->
+          <div
+            *ngSwitchCase="'image'"
+            class="image-preview"
+            (click)="onImageClick(attachment)"
+          >
+            <img [src]="attachment.url" [alt]="attachment.name" />
+          </div>
+
+          <!-- File -->
+          <div
+            *ngSwitchDefault
+            class="file-preview"
+            [class.doc-file]="
+              attachment.mimeType.includes('document') ||
+              attachment.mimeType.includes('text')
+            "
+            [class.pdf-file]="attachment.mimeType.includes('pdf')"
+            [class.archive-file]="
+              attachment.mimeType.includes('zip') ||
+              attachment.mimeType.includes('rar')
+            "
+            [class.audio-file]="attachment.mimeType.includes('audio')"
+            [class.video-file]="attachment.mimeType.includes('video')"
+            [class.image-file]="attachment.mimeType.includes('image')"
+            (click)="onFileClick(attachment)"
+          >
+            <div class="file-icon">
+              <span class="material-icons">{{
+                getFileIcon(attachment.mimeType)
+              }}</span>
+            </div>
+            <span class="file-name">{{ attachment.name }}</span>
+            <span class="file-size">{{
+              formatFileSize(attachment.size)
+            }}</span>
+            <span class="download-indicator material-icons">download</span>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="message-meta">
+      <span class="timestamp">{{
+        message.timestamp | date : 'shortTime'
+      }}</span>
+      <span class="material-icons status-icon">{{
+        getMessageStatusIcon()
+      }}</span>
+    </div>
+  </div>
+</div>
