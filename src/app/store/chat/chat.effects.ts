@@ -50,7 +50,6 @@ export class ChatEffects {
       ofType(ChatActions.sendMessage),
       mergeMap(({ chatId, content, attachments }) =>
         this.chatService.sendMessage(chatId, content, attachments).pipe(
-          tap((message) => this.webSocketService.sendMessage(message)),
           map((message) => ChatActions.sendMessageSuccess({ message })),
           catchError((error) => of(ChatActions.sendMessageFailure({ error })))
         )

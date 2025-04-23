@@ -1,0 +1,88 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <h2>Đăng ký tài khoản</h2>
+      <p>Tạo tài khoản để sử dụng ứng dụng chat</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+      <div class="form-group">
+        <label for="fullName">Họ và tên</label>
+        <input 
+          type="text" 
+          id="fullName" 
+          formControlName="FullName" 
+          placeholder="Nhập họ và tên của bạn"
+          [class.is-invalid]="registerForm.get('FullName')?.invalid && registerForm.get('FullName')?.touched"
+        >
+        <div *ngIf="registerForm.get('FullName')?.invalid && registerForm.get('FullName')?.touched" class="error-message">
+          <span *ngIf="registerForm.get('FullName')?.errors?.['required']">Họ và tên là bắt buộc</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Tên đăng nhập</label>
+        <input 
+          type="text" 
+          id="username" 
+          formControlName="Username" 
+          placeholder="Tên đăng nhập"
+          [class.is-invalid]="registerForm.get('Username')?.invalid && registerForm.get('Username')?.touched"
+        >
+        <div *ngIf="registerForm.get('Username')?.invalid && registerForm.get('Username')?.touched" class="error-message">
+          <span *ngIf="registerForm.get('Username')?.errors?.['required']">Tên đăng nhập là bắt buộc</span>
+          <span *ngIf="registerForm.get('Username')?.errors?.['minlength']">Tên đăng nhập phải có ít nhất 3 ký tự</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="Email" 
+          placeholder="Nhập email của bạn"
+          [class.is-invalid]="registerForm.get('Email')?.invalid && registerForm.get('Email')?.touched"
+        >
+        <div *ngIf="registerForm.get('Email')?.invalid && registerForm.get('Email')?.touched" class="error-message">
+          <span *ngIf="registerForm.get('Email')?.errors?.['required']">Email là bắt buộc</span>
+          <span *ngIf="registerForm.get('Email')?.errors?.['email']">Email không hợp lệ</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mật khẩu</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="Password" 
+          placeholder="Nhập mật khẩu"
+          [class.is-invalid]="registerForm.get('Password')?.invalid && registerForm.get('Password')?.touched"
+        >
+        <div *ngIf="registerForm.get('Password')?.invalid && registerForm.get('Password')?.touched" class="error-message">
+          <span *ngIf="registerForm.get('Password')?.errors?.['required']">Mật khẩu là bắt buộc</span>
+          <span *ngIf="registerForm.get('Password')?.errors?.['minlength']">Mật khẩu phải có ít nhất 6 ký tự</span>
+        </div>
+      </div>
+
+      <div *ngIf="error$ | async" class="server-error">
+        {{ error$ | async }}
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn-register"
+          [disabled]="registerForm.invalid || (isLoading$ | async)"
+        >
+          <span *ngIf="isLoading$ | async">Đang đăng ký...</span>
+          <span *ngIf="!(isLoading$ | async)">Đăng ký</span>
+        </button>
+      </div>
+
+      <div class="login-link">
+        Đã có tài khoản? <a routerLink="/auth/login">Đăng nhập</a>
+      </div>
+    </form>
+  </div>
+</div>

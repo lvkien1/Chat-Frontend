@@ -25,6 +25,12 @@ Modern teams need a reliable, feature-rich communication platform that combines 
 
 ## Core Features
 
+### 0. Authentication
+- Đăng ký tài khoản người dùng
+- Đăng nhập/đăng xuất
+- Quản lý phiên đăng nhập
+- Bảo vệ các tính năng chat/file cho người dùng đã xác thực
+
 ### 1. Messaging
 - Real-time message delivery
 - Message status indicators
@@ -61,6 +67,7 @@ Modern teams need a reliable, feature-rich communication platform that combines 
 - Cross-functional teams
 
 ### User Needs
+- Xác thực người dùng (đăng ký/đăng nhập)
 - Quick communication
 - File collaboration
 - Team organization

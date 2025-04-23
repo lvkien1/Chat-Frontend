@@ -123,10 +123,10 @@ export class ChatService {
     // Add mock chat
     const mockChat = createMockChat('1');
     const mockParticipant: ChatParticipant = {
-      id: 'user1',
-      name: 'User One',
-      avatar: '',
-      isOnline: true,
+      Id: 'user1',
+      FullName: 'User One',
+      Avatar: '',
+      IsOnline: true,
       role: 'member'
     };
     

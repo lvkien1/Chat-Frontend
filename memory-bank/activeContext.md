@@ -1,6 +1,7 @@
 # Active Development Context
 
 ## Current Focus
+- Đăng ký/đăng nhập người dùng
 - File handling and preview functionality
 - Type safety improvements in state management
 - Chat service message handling
@@ -31,10 +32,11 @@
    - Enhanced action typing
 
 ## Immediate TODOs
-1. Complete WebSocket reconnection strategy
-2. Add unit tests for new components
-3. Implement remaining file upload UI components
-4. Add proper error boundaries and loading states
+1. Hoàn thiện tính năng đăng ký/đăng nhập người dùng
+2. Complete WebSocket reconnection strategy
+3. Add unit tests for new components
+4. Implement remaining file upload UI components
+5. Add proper error boundaries and loading states
 
 ## Technical Notes
 - Using async pipes for better performance

@@ -8,10 +8,111 @@ import { UserService } from '../../core/services/user.service';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { UserActions } from './user.actions';
 import { selectCurrentUser } from './user.selectors';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class UserEffects {
   private actions$ = inject(Actions);
+
+  // Authentication effects
+  // Kiểm tra trạng thái đăng nhập khi khởi động
+  initAuthStatus$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.initAuthStatus),
+      switchMap(() => {
+        // Kiểm tra token trong localStorage
+        const hasToken = this.userService.checkAuthStatus();
+        
+        if (hasToken) {
+          // Nếu có token, kiểm tra token có hợp lệ không bằng cách tải thông tin người dùng
+          return this.userService.getCurrentUser().pipe(
+            map((user) => {
+              // Nếu lấy được thông tin người dùng, token hợp lệ
+              console.log('Token hợp lệ, người dùng đã đăng nhập:', user);
+              return UserActions.initAuthStatusSuccess({ isAuthenticated: true });
+            }),
+            catchError((error) => {
+              // Nếu không lấy được thông tin người dùng, token không hợp lệ
+              console.log('Token không hợp lệ hoặc đã hết hạn');
+              // Xóa token khỏi localStorage
+              this.userService.removeAuthToken();
+              return of(UserActions.initAuthStatusFailure());
+            })
+          );
+        } else {
+          // Nếu không có token, người dùng chưa đăng nhập
+          console.log('Không có token, người dùng chưa đăng nhập');
+          return of(UserActions.initAuthStatusFailure());
+        }
+      })
+    )
+  );
+  register$ = createEffect(() => 
+    this.actions$.pipe(
+      ofType(UserActions.register),
+      switchMap(({ model }) => 
+        this.userService.register(model).pipe(
+          map(user => UserActions.registerSuccess({ user })),
+          catchError(error => of(UserActions.registerFailure({ error })))
+        )
+      )
+    )
+  );
+
+  login$ = createEffect(() => 
+    this.actions$.pipe(
+      ofType(UserActions.login),
+      switchMap(({ model }) =>
+        this.userService.login(model).pipe(
+          map(user => UserActions.loginSuccess({ user })),
+          catchError(error => of(UserActions.loginFailure({ error })))
+        )
+      )
+    )
+  );
+
+  logout$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.logout),
+      switchMap(() => 
+        this.userService.logout().pipe(
+          map(() => UserActions.logoutSuccess()),
+          catchError(error => of(UserActions.logoutFailure({ error })))
+        )
+      )
+    )
+  );
+  
+  // Navigation after authentication
+  authSuccess$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.loginSuccess, UserActions.registerSuccess),
+      tap(() => {
+        this.router.navigate(['/chat']);
+      })
+    ),
+    { dispatch: false }
+  );
+  
+  authFailure$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.loginFailure, UserActions.registerFailure),
+      tap(({ error }) => {
+        console.error('Authentication error:', error);
+      })
+    ),
+    { dispatch: false }
+  );
+  
+  logoutSuccess$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.logoutSuccess),
+      tap(() => {
+        this.router.navigate(['/auth/login']);
+      })
+    ),
+    { dispatch: false }
+  );
 
   loadCurrentUser$ = createEffect(() =>
     this.actions$.pipe(
@@ -132,6 +233,17 @@ export class UserEffects {
   constructor(
     private userService: UserService,
     private webSocketService: WebSocketService,
-    private store: Store
-  ) {}
+    private store: Store,
+    private router: Router
+  ) {
+    // Kích hoạt kiểm tra trạng thái xác thực khi ứng dụng khởi động
+    this.store.dispatch(UserActions.initAuthStatus());
+
+    // Khởi động WebSocket
+    this.webSocketService.connect(1);
+    const obserConnected = this.webSocketService.getConnectionStatus();
+    obserConnected.subscribe(value => {
+      this.webSocketService.connectConversation();
+    });
+  }
 }

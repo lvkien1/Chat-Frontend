@@ -8,6 +8,7 @@ export interface UserState {
   loading: boolean;
   error: string | null;
   settings: UserSettings | null;
+  isAuthenticated: boolean;
 }
 
 export const initialState: UserState = {
@@ -15,11 +16,98 @@ export const initialState: UserState = {
   users: [],
   loading: false,
   error: null,
-  settings: null
+  settings: null,
+  isAuthenticated: false
 };
 
 export const userReducer = createReducer(
   initialState,
+
+  // Authentication
+  on(UserActions.initAuthStatus, (state) => ({
+    ...state,
+    loading: true
+  })),
+
+  on(UserActions.initAuthStatusSuccess, (state, { isAuthenticated }) => ({
+    ...state,
+    isAuthenticated,
+    loading: false
+  })),
+
+  on(UserActions.initAuthStatusFailure, (state) => ({
+    ...state,
+    isAuthenticated: false,
+    loading: false
+  })),
+
+  on(UserActions.register, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+
+  on(UserActions.registerSuccess, (state, { user }) => ({
+    ...state,
+    currentUser: {
+      ...user,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    } as UserProfile,
+    users: [...state.users, user],
+    loading: false,
+    isAuthenticated: true
+  })),
+  
+  on(UserActions.registerFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+    isAuthenticated: false
+  })),
+
+  on(UserActions.login, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+
+  on(UserActions.loginSuccess, (state, { user }) => ({
+    ...state,
+    currentUser: {
+      ...user,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    } as UserProfile,
+    loading: false,
+    isAuthenticated: true
+  })),
+  
+  on(UserActions.loginFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+    isAuthenticated: false
+  })),
+
+  on(UserActions.logout, (state) => ({
+    ...state,
+    loading: true
+  })),
+  
+  on(UserActions.logoutSuccess, (state) => ({
+    ...state,
+    currentUser: null,
+    loading: false,
+    isAuthenticated: false
+  })),
+  
+  on(UserActions.logoutFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+    isAuthenticated: false  // Đặt isAuthenticated: false ngay cả khi logout thất bại
+  })),
 
   // Load Current User
   on(UserActions.loadCurrentUser, (state) => ({
@@ -32,13 +120,15 @@ export const userReducer = createReducer(
     ...state,
     currentUser: user,
     loading: false,
-    settings: state?.settings && state.settings.theme ? { ...user.settings, theme: state.settings.theme } : user.settings
+    settings: state?.settings && state.settings.theme ? { ...user.Settings, theme: state.settings.theme } : user.Settings,
+    isAuthenticated: true
   })),
 
   on(UserActions.loadCurrentUserFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error
+    error,
+    isAuthenticated: false  // Thiết lập isAuthenticated: false khi không tải được thông tin người dùng
   })),
 
   // Load All Users
@@ -57,7 +147,8 @@ export const userReducer = createReducer(
   on(UserActions.loadUsersFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error
+    error,
+    isAuthenticated: false
   })),
 
   // Load User by ID
@@ -69,8 +160,8 @@ export const userReducer = createReducer(
 
   on(UserActions.loadUserByIdSuccess, (state, { user }) => ({
     ...state,
-    users: state.users.some(u => u.id === user.id)
-      ? state.users.map(u => u.id === user.id ? user : u)
+    users: state.users.some(u => u.Id === user.Id)
+      ? state.users.map(u => u.Id === user.Id ? user : u)
       : [...state.users, user],
     loading: false
   })),
@@ -78,7 +169,8 @@ export const userReducer = createReducer(
   on(UserActions.loadUserByIdFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error
+    error,
+    isAuthenticated: false
   })),
 
   // Update User
@@ -90,8 +182,8 @@ export const userReducer = createReducer(
 
   on(UserActions.updateUserSuccess, (state, { user }) => ({
     ...state,
-    users: state.users.map(u => u.id === user.id ? user : u),
-    currentUser: state.currentUser?.id === user.id
+    users: state.users.map(u => u.Id === user.Id ? user : u),
+    currentUser: state.currentUser?.Id === user.Id
       ? { ...state.currentUser, ...user }
       : state.currentUser,
     loading: false
@@ -100,7 +192,8 @@ export const userReducer = createReducer(
   on(UserActions.updateUserFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error
+    error,
+    isAuthenticated: false
   })),
 
   // Update Settings
@@ -114,7 +207,7 @@ export const userReducer = createReducer(
     ...state,
     settings,
     currentUser: state.currentUser
-      ? { ...state.currentUser, settings }
+      ? { ...state.currentUser, Settings: settings }
       : null,
     loading: false
   })),
@@ -122,7 +215,31 @@ export const userReducer = createReducer(
   on(UserActions.updateSettingsFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error
+    error,
+    isAuthenticated: false
+  })),
+
+  // Update Profile
+  on(UserActions.updateProfile, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+
+  on(UserActions.updateProfileSuccess, (state, { user }) => ({
+    ...state,
+    currentUser: state.currentUser
+      ? { ...state.currentUser, ...user }
+      : null,
+    loading: false
+    // Không đặt isAuthenticated ở đây vì đây là cập nhật profile
+  })),
+
+  on(UserActions.updateProfileFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+    isAuthenticated: false // Thêm isAuthenticated: false
   })),
 
   // Theme
@@ -137,7 +254,7 @@ export const userReducer = createReducer(
   on(UserActions.updateUserStatus, (state, { userId, isOnline }) => ({
     ...state,
     users: state.users.map(user =>
-      user.id === userId ? { ...user, isOnline } : user
+      user.Id === userId ? { ...user, IsOnline: isOnline } : user
     )
   })),
 
@@ -145,11 +262,11 @@ export const userReducer = createReducer(
   on(UserActions.setConnectionStatus, (state, { isConnected }) => ({
     ...state,
     currentUser: state.currentUser
-      ? { ...state.currentUser, isOnline: isConnected }
+      ? { ...state.currentUser, IsOnline: isConnected }
       : null,
     users: state.users.map(user =>
-      user.id === state.currentUser?.id
-        ? { ...user, isOnline: isConnected }
+      user.Id === state.currentUser?.Id
+        ? { ...user, IsOnline: isConnected }
         : user
     )
   }))

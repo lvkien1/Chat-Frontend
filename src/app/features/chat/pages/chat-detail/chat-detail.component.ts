@@ -42,7 +42,7 @@ export class ChatDetailComponent implements OnInit, OnDestroy {
   constructor(private route: ActivatedRoute, private store: Store) {
     this.currentUserId$ = this.store
       .select(UserSelectors.selectCurrentUser)
-      .pipe(map((user) => user?.id ?? ''));
+      .pipe(map((user) => user?.Id ?? ''));
     
     // this.currentTheme$ = this.store.select(selectCurrentTheme);
 

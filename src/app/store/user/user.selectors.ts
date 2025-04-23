@@ -9,6 +9,11 @@ export const selectCurrentUser = createSelector(
   (state) => state.currentUser
 );
 
+export const selectIsAuthenticated = createSelector(
+  selectUserState,
+  (state) => state.isAuthenticated
+);
+
 export const selectUserSettings = createSelector(
   selectUserState,
   (state) => state.settings
@@ -36,13 +41,13 @@ export const selectError = createSelector(
 
 export const selectUserById = (userId: string) => createSelector(
   selectAllUsers,
-  (users) => users.find(user => user.id === userId)
+  (users) => users.find(user => user.Id === userId)
 );
 
 export const selectUsersMap = createSelector(
   selectAllUsers,
   (users) => users.reduce((map: { [key: string]: User }, user) => {
-    map[user.id] = user;
+    map[user.Id] = user;
     return map;
   }, {})
 );
