@@ -1,10 +1,22 @@
 export interface BaseUser {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  settings: UserSettings;
-  isOnline: boolean;
+  Id: string;
+  FullName: string;
+  Email: string;
+  Avatar?: string;
+  Settings: UserSettings;
+  IsOnline: boolean;
+}
+
+export interface RegisterModel {
+  Username: string;
+  Email: string;
+  Password: string;
+  FullName: string;
+}
+
+export interface LoginModel {
+  Username: string;
+  Password: string;
 }
 
 export interface User extends BaseUser {
@@ -34,13 +46,13 @@ export interface UpdateSettingsDto {
 }
 
 export interface UserStatus {
-  userId: string;
+  userId: string; // Giữ nguyên tên để tương thích với code cũ
   status: 'online' | 'away' | 'offline';
   lastSeen?: Date;
 }
 
 export interface UserPresence {
-  userId: string;
+  userId: string; // Giữ nguyên tên để tương thích với code cũ
   status: 'online' | 'away' | 'offline';
   lastActivity: Date;
 }
@@ -57,17 +69,17 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   showOnlineStatus: true
 };
 
-export interface ChatParticipant extends Pick<BaseUser, 'id' | 'name' | 'avatar'> {
+export interface ChatParticipant extends Pick<BaseUser, 'Id' | 'FullName' | 'Avatar'> {
   role?: 'owner' | 'admin' | 'member';
   lastSeen?: Date;
-  isOnline: boolean;
+  IsOnline: boolean;
 }
 
 export const createMockUser = (id: string): User => ({
-  id,
-  name: `User ${id}`,
-  email: `user${id}@example.com`,
-  avatar: '',
-  isOnline: false,
-  settings: DEFAULT_USER_SETTINGS
+  Id: id,
+  FullName: `User ${id}`,
+  Email: `user${id}@example.com`,
+  Avatar: '',
+  IsOnline: false,
+  Settings: DEFAULT_USER_SETTINGS
 });

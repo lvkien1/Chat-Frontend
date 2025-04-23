@@ -35,10 +35,10 @@ export function createMockChat(id: string): Chat {
     type: 'direct',
     participantsInfo: [
       { 
-        id: 'user1',
-        name: 'User 1',
-        avatar: '',
-        isOnline: true
+        Id: 'user1',
+        FullName: 'User 1',
+        Avatar: '',
+        IsOnline: true
       }
     ],
     participants: ['user1'],
@@ -57,8 +57,8 @@ export function getChatName(chat: Chat, currentUserId: string): string {
   }
   
   // For direct chats, show the other participant's name
-  const otherParticipant = chat.participantsInfo.find(p => p.id !== currentUserId);
-  return otherParticipant?.name || 'Unknown User';
+  const otherParticipant = chat.participantsInfo.find(p => p.Id !== currentUserId);
+  return otherParticipant?.FullName || 'Unknown User';
 }
 
 export function getChatAvatar(chat: Chat, currentUserId: string): string {
@@ -68,15 +68,15 @@ export function getChatAvatar(chat: Chat, currentUserId: string): string {
 
   // For direct chats, show the other participant's avatar
   const otherParticipant = chat.participantsInfo.find(
-    (p) => p.id !== currentUserId
+    (p) => p.Id !== currentUserId
   );
-  return otherParticipant?.avatar || '';
+  return otherParticipant?.Avatar || '';
 }
 
 export function getTypingUsersText(chat: Chat, currentUserId: string): string {
   const typingUsers = chat.participantsInfo
-    .filter(user => chat.typingUsers.includes(user.id) && user.id !== currentUserId)
-    .map(user => user.name);
+    .filter(user => chat.typingUsers.includes(user.Id) && user.Id !== currentUserId)
+    .map(user => user.FullName);
 
   if (typingUsers.length === 0) return '';
   if (typingUsers.length === 1) return `${typingUsers[0]} is typing...`;

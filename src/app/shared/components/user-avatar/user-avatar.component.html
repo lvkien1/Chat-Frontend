@@ -2,18 +2,18 @@
   class="avatar-container"
   [style.width.px]="size"
   [style.height.px]="size"
-  [class.online]="user?.isOnline"
+  [class.online]="user?.IsOnline"
 >
   <ng-container *ngIf="user">
     <img
-      *ngIf="user.avatar; else initialAvatar"
-      [src]="user.avatar"
-      [alt]="user.name"
+      *ngIf="user.Avatar; else initialAvatar"
+      [src]="user.Avatar"
+      [alt]="user.FullName"
       class="avatar-image"
     />
     <ng-template #initialAvatar>
       <div class="initial-avatar" [style.fontSize.px]="size * 0.4">
-        {{ ChatUtil.getInitials(user.name) }}
+        {{ ChatUtil.getInitials(user.FullName) }}
       </div>
     </ng-template>
   </ng-container>

@@ -1,13 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
 import { Message } from '../models/message.model';
 import { UserStatus, UserPresence } from '../models/user.model';
-
-type WebSocketEvent = {
-  type: string;
-  payload: any;
-};
+import * as signalR from '@microsoft/signalr';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +13,7 @@ export class WebSocketService {
     console.log(`[WS][${timestamp}] ${event}`, data || '');
   }
 
-  private socket: WebSocket | null = null;
+  private hubConnection: signalR.HubConnection | null = null;
   private isConnected$ = new BehaviorSubject<boolean>(false);
   private messageQueue: Array<{
     id: string;
@@ -33,69 +28,106 @@ export class WebSocketService {
   private typingUpdates$ = new Subject<{ chatId: string; userId: string; isTyping: boolean }>();
   private readReceipts$ = new Subject<{ chatId: string; userId: string; lastRead: Date }>();
 
-  connect(userId: string): void {
+  connect(userId: number): void {
     this.log('CONNECT_ATTEMPT', { userId });
-    if (this.socket) {
+    if (this.hubConnection) {
       this.disconnect();
     }
 
-    this.socket = new WebSocket(`wss://your-api-endpoint/ws?userId=${userId}`);
-    
-    this.socket.onopen = () => {
-      this.isConnected$.next(true);
-      this.processQueue();
-      this.log('CONNECT_SUCCESS', { userId });
-    };
+    // TODO: Lấy access_token động nếu cần
+    const accessToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJraWVuIiwiZW1haWwiOiJraWVuQGdtYWlsLmNvbSIsImp0aSI6IjdiMDA2YTExLTU5MzUtNDVkYi05YTkwLWExZGZlNWNlNWI3MyIsInVzZXJJZCI6ImU3YjhiM2FlLTUzYzAtNDBjMC04ZmVjLWE0MTUwN2NhMjUxZSIsImV4cCI6MTc0NDczMjg4OCwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwIn0.dVWeOvTKVDRUCl8MEoA2Cy6yA8FzSz0qy3lD83H1858';
+    this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl(`http://localhost:5016/chatHub`, {
+        accessTokenFactory: () => accessToken
+      })
+      .withAutomaticReconnect()
+      .build();
 
-    this.socket.onclose = () => {
+    this.hubConnection.onclose(() => {
       this.isConnected$.next(false);
       this.log('CONNECTION_CLOSED');
-    };
+    });
 
-    this.socket.onerror = (error) => {
-      this.log('CONNECTION_ERROR', { error });
-    };
+    this.hubConnection.onreconnecting(() => {
+      this.isConnected$.next(false);
+      this.log('CONNECTION_RECONNECTING');
+    });
 
-    this.socket.onmessage = (event) => {
-      this.handleMessage(event);
-    };
+    this.hubConnection.onreconnected(() => {
+      this.isConnected$.next(true);
+      this.log('CONNECTION_RECONNECTED');
+      this.processQueue();
+    });
+
+    this.hubConnection.on('ReceiveMessage', (message: Message) => {
+      this.messages$.next(message);
+    });
+
+    this.hubConnection.on('PresenceUpdate', (presence: UserPresence) => {
+      this.presenceUpdates$.next(presence);
+    });
+
+    this.hubConnection.on('TypingUpdate', (typing: { chatId: string; userId: string; isTyping: boolean }) => {
+      this.typingUpdates$.next(typing);
+    });
+
+    this.hubConnection.on('ReadReceipt', (receipt: { chatId: string; userId: string; lastRead: Date }) => {
+      this.readReceipts$.next(receipt);
+    });
+
+    this.hubConnection
+      .start()
+      .then(() => {
+        this.isConnected$.next(true);
+        this.processQueue();
+        this.log('CONNECT_SUCCESS', { userId });
+      })
+      .catch(error => {
+        this.isConnected$.next(false);
+        this.log('CONNECTION_ERROR', { error });
+      });
   }
 
   disconnect(): void {
-    if (this.socket) {
-      this.socket.close();
-      this.socket = null;
+    if (this.hubConnection) {
+      this.hubConnection.stop();
+      this.hubConnection = null;
     }
     this.isConnected$.next(false);
   }
 
   sendMessage(message: Message): void {
     this.log('SEND_MESSAGE_ATTEMPT', { messageId: message.id });
-    
+
     if (!this.isConnected$.value) {
       this.log('MESSAGE_QUEUED_OFFLINE', { messageId: message.id });
       this.addToQueue(message);
       return;
     }
-
-    try {
-      this.socket?.send(JSON.stringify({
-        type: 'MESSAGE',
-        payload: message
-      }));
-      this.messages$.next(message);
-      this.log('MESSAGE_SENT_SUCCESS', { messageId: message.id });
-    } catch (error) {
-      this.log('MESSAGE_SEND_FAILED', { messageId: message.id, error });
-      this.addToQueue(message);
-    }
+    const a = {
+      type: 1,
+      target: 'SendMessage',
+      arguments: [1, 'Xin chào từ Postman!'],
+    };
+    this.hubConnection
+      ?.invoke('SendMessage', 1, message.content)
+      .then(() => {
+        debugger;
+        this.messages$.next(message);
+        this.log('MESSAGE_SENT_SUCCESS', { messageId: message.id });
+      })
+      .catch((error) => {
+        this.log('MESSAGE_SEND_FAILED', { messageId: message.id, error });
+        this.addToQueue(message);
+      });
   }
 
   private addToQueue(message: Message): void {
     if (this.messageQueue.length >= this.maxQueueSize) {
       this.messageQueue.shift();
     }
-    
+
     this.messageQueue.push({
       id: Math.random().toString(36).substring(2, 9),
       message,
@@ -110,34 +142,32 @@ export class WebSocketService {
     }
 
     const item = this.messageQueue[0];
-    this.log('PROCESS_QUEUE_ITEM', { 
+    this.log('PROCESS_QUEUE_ITEM', {
       messageId: item.message.id,
       retryCount: item.retries
     });
 
-    try {
-      this.socket?.send(JSON.stringify({
-        type: 'MESSAGE',
-        payload: item.message
-      }));
-      this.messages$.next(item.message);
-      this.messageQueue.shift();
-      this.log('QUEUE_ITEM_SENT_SUCCESS', { messageId: item.message.id });
-      
-      if (this.messageQueue.length > 0) {
-        setTimeout(() => this.processQueue(), 100);
-      }
-    } catch (error) {
-      item.retries++;
-      if (item.retries >= this.maxRetries) {
+    this.hubConnection?.invoke('SendMessage', item.message)
+      .then(() => {
+        this.messages$.next(item.message);
         this.messageQueue.shift();
-        this.log('QUEUE_ITEM_MAX_RETRIES', { 
-          messageId: item.message.id,
-          error 
-        });
-      }
-      setTimeout(() => this.processQueue(), this.getRetryDelay(item.retries));
-    }
+        this.log('QUEUE_ITEM_SENT_SUCCESS', { messageId: item.message.id });
+
+        if (this.messageQueue.length > 0) {
+          setTimeout(() => this.processQueue(), 100);
+        }
+      })
+      .catch(error => {
+        item.retries++;
+        if (item.retries >= this.maxRetries) {
+          this.messageQueue.shift();
+          this.log('QUEUE_ITEM_MAX_RETRIES', {
+            messageId: item.message.id,
+            error
+          });
+        }
+        setTimeout(() => this.processQueue(), this.getRetryDelay(item.retries));
+      });
   }
 
   private getRetryDelay(retryCount: number): number {
@@ -145,7 +175,7 @@ export class WebSocketService {
   }
 
   updateStatus(status: 'online' | 'away' | 'offline'): Observable<UserStatus> {
-    // Mock implementation
+    // Có thể mở rộng: gửi status lên server qua SignalR nếu backend hỗ trợ
     const response: UserStatus = {
       userId: 'current-user',
       status,
@@ -160,21 +190,28 @@ export class WebSocketService {
   }
 
   updateTypingStatus(chatId: string, isTyping: boolean): void {
-    // Mock implementation
-    this.typingUpdates$.next({
-      chatId,
-      userId: 'current-user',
-      isTyping
-    });
+    // Gửi trạng thái typing lên server nếu backend hỗ trợ
+    this.hubConnection?.invoke('UpdateTyping', { chatId, isTyping })
+      .catch(() => {
+        // fallback local
+        this.typingUpdates$.next({
+          chatId,
+          userId: 'current-user',
+          isTyping
+        });
+      });
   }
 
   markMessagesRead(chatId: string, messageIds: string[]): void {
-    // Mock implementation
-    this.readReceipts$.next({
-      chatId,
-      userId: 'current-user',
-      lastRead: new Date()
-    });
+    // Gửi read receipt lên server nếu backend hỗ trợ
+    this.hubConnection?.invoke('MarkMessagesRead', { chatId, messageIds })
+      .catch(() => {
+        this.readReceipts$.next({
+          chatId,
+          userId: 'current-user',
+          lastRead: new Date()
+        });
+      });
   }
 
   // Getters for observables
@@ -198,28 +235,10 @@ export class WebSocketService {
     return this.isConnected$.asObservable();
   }
 
-  private handleMessage(event: MessageEvent): void {
-    try {
-      const data: WebSocketEvent = JSON.parse(event.data);
-      
-      switch (data.type) {
-        case 'MESSAGE':
-          this.messages$.next(data.payload);
-          break;
-        case 'PRESENCE':
-          this.presenceUpdates$.next(data.payload);
-          break;
-        case 'TYPING':
-          this.typingUpdates$.next(data.payload);
-          break;
-        case 'READ_RECEIPT':
-          this.readReceipts$.next(data.payload);
-          break;
-        default:
-          console.warn('Unknown message type:', data.type);
-      }
-    } catch (error) {
-      console.error('Error handling WebSocket message:', error);
-    }
+  connectConversation(): void {
+    this.hubConnection
+      ?.invoke('JoinConversation', 1)
+      .then(() => console.log('Joined conversation:', 1))
+      .catch((err) => console.error('JoinConversation error:', err));
   }
 }

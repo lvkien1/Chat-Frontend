@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, delay } from 'rxjs';
+import { Observable, of, delay, tap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { 
   User, 
   UserProfile,
   UserSettings, 
   UpdateSettingsDto,
-  DEFAULT_USER_SETTINGS
+  DEFAULT_USER_SETTINGS,
+  RegisterModel,
+  LoginModel
 } from '../models/user.model';
 import { environment } from '../../../environments/environment';
 
@@ -22,17 +24,105 @@ export class UserService {
     this.initializeMockData();
   }
 
+  /**
+   * Lưu token xác thực vào localStorage
+   */
+  saveAuthToken(token: string): void {
+    localStorage.setItem('auth_token', token);
+  }
+
+  /**
+   * Xóa token xác thực khỏi localStorage
+   */
+  removeAuthToken(): void {
+    localStorage.removeItem('auth_token');
+  }
+
+  /**
+   * Lấy token xác thực từ localStorage
+   */
+  getAuthToken(): string | null {
+    return localStorage.getItem('auth_token');
+  }
+
+  /**
+   * Kiểm tra trạng thái xác thực dựa trên token
+   */
+  checkAuthStatus(): boolean {
+    return !!this.getAuthToken();
+  }
+
+  /**
+   * Đăng ký người dùng mới
+   */
+  register(model: RegisterModel): Observable<User> {
+    // Mock implementation
+    const newUser: User = {
+      Id: `user-${Date.now()}`,
+      FullName: model.FullName,
+      Email: model.Email,
+      Avatar: '',
+      Settings: DEFAULT_USER_SETTINGS,
+      IsOnline: true
+    };
+    
+    this.mockUsers.set(newUser.Id, newUser);
+    
+    // Trong thực tế sẽ nhận token từ API backend
+    return of(newUser).pipe(
+      delay(300),
+      tap(() => {
+        // Lưu auth token giả định
+        this.saveAuthToken(`mock_token_${Date.now()}`);
+      })
+    );
+  }
+  
+  /**
+   * Đăng nhập người dùng
+   */
+  login(model: LoginModel): Observable<User> {
+    // Mock implementation - tìm user theo username
+    // Trong thực tế sẽ gọi API backend
+    const user = Array.from(this.mockUsers.values()).find(
+      u => u.Email.split('@')[0] === model.Username
+    );
+    
+    if (user) {
+      const loggedInUser = {...user, IsOnline: true};
+      this.mockUsers.set(loggedInUser.Id, loggedInUser);
+      
+      // Trả về user và lưu auth token giả định
+      return of(loggedInUser).pipe(
+        delay(200),
+        tap(() => {
+          this.saveAuthToken(`mock_token_${Date.now()}`);
+        })
+      );
+    }
+    
+    return throwError(() => new Error('Invalid credentials'));
+  }
+
+  /**
+   * Đăng xuất người dùng
+   */
+  logout(): Observable<void> {
+    this.removeAuthToken();
+    return of(undefined).pipe(delay(100));
+  }
+
   getCurrentUser(): Observable<UserProfile> {
     // Mock implementation
     return of<UserProfile>({
-      id: 'current-user',
-      name: 'Current User',
-      email: 'current@example.com',
-      avatar: '',
-      settings: DEFAULT_USER_SETTINGS,
+      Id: 'current-user',
+      FullName: 'Current User',
+      Email: 'current@example.com',
+      Avatar: '',
+      Settings: DEFAULT_USER_SETTINGS,
       createdAt: new Date(2025, 0, 1),
       updatedAt: new Date(),
-      isOnline: true
+      IsOnline: true
     }).pipe(delay(100));
   }
 
@@ -65,11 +155,11 @@ export class UserService {
     if (!user) return throwError(() => new Error('User not found'));
 
     const updatedSettings: UserSettings = {
-      ...user.settings,
+      ...user.Settings,
       ...settings,
       lastUpdated: new Date()
     };
-    this.mockUsers.set(userId, { ...user, settings: updatedSettings });
+    this.mockUsers.set(userId, { ...user, Settings: updatedSettings });
     return of(updatedSettings).pipe(delay(100));
   }
 
@@ -85,7 +175,7 @@ export class UserService {
 
     const updatedUser = {
       ...user,
-      avatar: URL.createObjectURL(file)
+      Avatar: URL.createObjectURL(file)
     };
     this.mockUsers.set(userId, updatedUser);
     return of(updatedUser).pipe(delay(500));
@@ -94,23 +184,23 @@ export class UserService {
   private initializeMockData(): void {
     const mockUsers: User[] = [
       {
-        id: 'user1',
-        name: 'User One',
-        email: 'user1@example.com',
-        avatar: '',
-        isOnline: true,
-        settings: {
+        Id: 'user1',
+        FullName: 'User One',
+        Email: 'user1@example.com',
+        Avatar: '',
+        IsOnline: true,
+        Settings: {
           ...DEFAULT_USER_SETTINGS,
           lastUpdated: new Date(2025, 0, 1)
         }
       },
       {
-        id: 'user2',
-        name: 'User Two',
-        email: 'user2@example.com',
-        avatar: '',
-        isOnline: false,
-        settings: {
+        Id: 'user2',
+        FullName: 'User Two',
+        Email: 'user2@example.com',
+        Avatar: '',
+        IsOnline: false,
+        Settings: {
           ...DEFAULT_USER_SETTINGS,
           theme: 'dark',
           soundEnabled: false,
@@ -119,7 +209,7 @@ export class UserService {
       }
     ];
 
-    mockUsers.forEach(user => this.mockUsers.set(user.id, user));
+    mockUsers.forEach(user => this.mockUsers.set(user.Id, user));
   }
 }
 

@@ -12,6 +12,7 @@ Implementation of a modern chat web application interface based on the provided 
 - Responsive design for various screen sizes
 
 ### 2. Key Features
+- Đăng ký và đăng nhập người dùng
 - Real-time chat messaging interface
 - User presence indicators (online status)
 - File sharing capabilities with preview
@@ -38,6 +39,7 @@ Implementation of a modern chat web application interface based on the provided 
 
 ### Phase 1: Foundation
 - Project setup and configuration
+- Đăng ký và đăng nhập người dùng
 - Core component architecture
 - Basic routing implementation
 - Style system implementation

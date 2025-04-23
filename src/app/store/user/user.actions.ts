@@ -1,9 +1,26 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { User, UserProfile, UserSettings, UpdateSettingsDto } from '../../core/models/user.model';
+import { User, UserProfile, UserSettings, UpdateSettingsDto, RegisterModel, LoginModel } from '../../core/models/user.model';
 
 export const UserActions = createActionGroup({
   source: 'User',
   events: {
+    // Authentication
+    'Init Auth Status': emptyProps(),
+    'Init Auth Status Success': props<{ isAuthenticated: boolean }>(),
+    'Init Auth Status Failure': emptyProps(),
+
+    'Register': props<{ model: RegisterModel }>(),
+    'Register Success': props<{ user: User }>(),
+    'Register Failure': props<{ error: any }>(),
+
+    'Login': props<{ model: LoginModel }>(),
+    'Login Success': props<{ user: User }>(),
+    'Login Failure': props<{ error: any }>(),
+
+    'Logout': emptyProps(),
+    'Logout Success': emptyProps(),
+    'Logout Failure': props<{ error: any }>(),
+
     // Load Current User
     'Load Current User': emptyProps(),
     'Load Current User Success': props<{ user: UserProfile }>(),

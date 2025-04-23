@@ -1,0 +1,59 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Đăng nhập</h2>
+      <p>Vui lòng đăng nhập để sử dụng ứng dụng chat</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="username">Tên đăng nhập</label>
+        <input 
+          type="text" 
+          id="username" 
+          formControlName="Username" 
+          placeholder="Nhập tên đăng nhập"
+          [class.is-invalid]="loginForm.get('Username')?.invalid && loginForm.get('Username')?.touched"
+        >
+        <div *ngIf="loginForm.get('Username')?.invalid && loginForm.get('Username')?.touched" class="error-message">
+          <span *ngIf="loginForm.get('Username')?.errors?.['required']">Tên đăng nhập là bắt buộc</span>
+          <span *ngIf="loginForm.get('Username')?.errors?.['minlength']">Tên đăng nhập phải có ít nhất 3 ký tự</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mật khẩu</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="Password" 
+          placeholder="Nhập mật khẩu"
+          [class.is-invalid]="loginForm.get('Password')?.invalid && loginForm.get('Password')?.touched"
+        >
+        <div *ngIf="loginForm.get('Password')?.invalid && loginForm.get('Password')?.touched" class="error-message">
+          <span *ngIf="loginForm.get('Password')?.errors?.['required']">Mật khẩu là bắt buộc</span>
+          <span *ngIf="loginForm.get('Password')?.errors?.['minlength']">Mật khẩu phải có ít nhất 6 ký tự</span>
+        </div>
+      </div>
+
+      <div *ngIf="error$ | async" class="server-error">
+        {{ error$ | async }}
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn-login"
+          [disabled]="loginForm.invalid || (isLoading$ | async)"
+        >
+          <span *ngIf="isLoading$ | async">Đang đăng nhập...</span>
+          <span *ngIf="!(isLoading$ | async)">Đăng nhập</span>
+        </button>
+      </div>
+
+      <div class="register-link">
+        Chưa có tài khoản? <a routerLink="/auth/register">Đăng ký ngay</a>
+      </div>
+    </form>
+  </div>
+</div>

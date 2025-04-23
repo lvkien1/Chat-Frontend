@@ -21,6 +21,7 @@
 - Implemented proper error handling in chat effects
 
 ## In Progress
+- Đăng ký/đăng nhập người dùng
 - Chat feature implementation
 - Message handling system
 - Real-time communication setup
@@ -29,18 +30,19 @@
 - State management refinements
 
 ## Next Tasks
-1. Complete MessagesListComponent
-2. Finish chat routes and navigation
-3. Implement real-time typing indicators
-4. Add file upload UI components
-5. Implement chat search functionality
-6. Add message reactions feature
-7. Setup proper error handling
-8. Add loading states and animations
-9. Implement user settings persistence
-10. Add unit tests for components and services
-11. Add E2E tests for critical flows
-12. Implement WebSocket reconnection strategy
+1. Hoàn thiện đăng ký/đăng nhập người dùng
+2. Complete MessagesListComponent
+3. Finish chat routes and navigation
+4. Implement real-time typing indicators
+5. Add file upload UI components
+6. Implement chat search functionality
+7. Add message reactions feature
+8. Setup proper error handling
+9. Add loading states and animations
+10. Implement user settings persistence
+11. Add unit tests for components and services
+12. Add E2E tests for critical flows
+13. Implement WebSocket reconnection strategy
 
 ## Known Issues
 - Need to complete UserService implementation

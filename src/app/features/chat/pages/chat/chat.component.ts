@@ -39,7 +39,7 @@ export class ChatComponent implements OnInit {
     const chats$ = this.store.select(ChatSelectors.selectAllChats);
     const currentUserId$ = this.store
       .select(UserSelectors.selectCurrentUser)
-      .pipe(map((user) => user?.id ?? ''));
+      .pipe(map((user) => user?.Id ?? ''));
     this.currentTheme$ = this.store.select(selectCurrentTheme);
 
     this.chatViewModels$ = combineLatest([chats$, currentUserId$]).pipe(
